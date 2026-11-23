@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SecureExam</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--b:#4F46E5;--b2:#7C3AED;--bg:#F5F6FA;--c:#fff;--t:#0F172A;--s:#64748B;--g:#10B981;--r:#EF4444;--l:#EEF0F6;--bd:#E4E7EF;--sh:0 1px 2px #0f172a0a,0 8px 24px #0f172a0d}
+@media(prefers-color-scheme:dark){:root{--bg:#0B0D14;--c:#151823;--t:#E8EAF2;--s:#8B93A7;--l:#20243A;--bd:#262A3B;--sh:0 1px 2px #0006}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+body{margin:0;font:16px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--t);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);-webkit-font-smoothing:antialiased}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+section:not([hidden]){animation:in .35s ease}@keyframes in{from{opacity:0;transform:translateY(10px)}}
+.lock{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.hero{padding:26px 22px;border-radius:26px;color:#fff;background:linear-gradient(135deg,var(--b),var(--b2));box-shadow:0 14px 34px #4f46e544;margin-bottom:8px}
+.hero h1{color:#fff;margin:14px 0 4px}.hero p{margin:0;opacity:.85;font-size:15px}
+.logo{width:48px;height:48px;border-radius:14px;background:#ffffff2b;display:grid;place-items:center}
+.card{background:var(--c);border:1px solid var(--bd);border-radius:20px;padding:18px;margin:12px 0;box-shadow:var(--sh)}
+h1{font-size:28px;line-height:1.15;margin:8px 0;letter-spacing:-.03em;font-weight:750}
+h2{font-size:19px;margin:0 0 10px;letter-spacing:-.02em}h3{margin:6px 0}
+.s{color:var(--s);font-size:14px}a{color:var(--b);font-weight:600;text-decoration:none}
+input,textarea,select{width:100%;padding:14px;margin:5px 0;border:1px solid var(--bd);border-radius:14px;font:inherit;background:var(--bg);color:var(--t);-webkit-user-select:text;user-select:text;transition:.15s}
+input:focus,textarea:focus,select:focus{outline:0;border-color:var(--b);box-shadow:0 0 0 4px #4f46e51f}
+input[type=checkbox]{width:20px;height:20px;margin:0 10px 0 0;vertical-align:middle;accent-color:var(--b)}
+.btn{display:block;width:100%;padding:14px;margin:8px 0;border:0;border-radius:14px;background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;font-weight:600;font-size:16px;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px #4f46e540;transition:.15s}
+.btn:active{transform:scale(.98);opacity:.9}.btn:disabled{opacity:.4;box-shadow:none}
+.btn.g{background:var(--l);color:var(--t);box-shadow:none}
+.btn.ok{background:var(--g);box-shadow:0 6px 16px #10b98140}.btn.no{background:var(--r);box-shadow:none}
+.btn.sm{display:inline-block;width:auto;padding:9px 15px;font-size:14px;margin:3px}
+.ch{display:flex;gap:12px;align-items:center;padding:13px;border:1.5px solid var(--bd);border-radius:14px;margin:8px 0;cursor:pointer;transition:.15s}
+.q{counter-reset:o}.q .ch::before{counter-increment:o;content:counter(o,upper-alpha);width:28px;height:28px;border-radius:9px;background:var(--l);display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.ch.on{border-color:var(--b);background:#4f46e514;font-weight:600}.q .ch.on::before{background:var(--b);color:#fff}
+.tabs{display:flex;gap:4px;padding:4px;background:var(--l);border-radius:14px;margin:12px 0;overflow-x:auto}
+.tabs button{flex:1;padding:9px 12px;border:0;border-radius:11px;background:transparent;color:var(--s);font-weight:600;font-size:14px;white-space:nowrap;font-family:inherit}
+.tabs .on{background:var(--c);color:var(--t);box-shadow:0 1px 4px #0002}
+.sc{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{color:var(--s);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.pill{padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.pill.ok{background:#10b9811f;color:#059669}.pill.no{background:#ef44441f;color:#dc2626}
+.ov{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:16px;background:#0008;backdrop-filter:blur(6px)}
+.ov>div{background:var(--c);border-radius:22px;padding:22px;max-width:540px;width:100%;max-height:88vh;overflow:auto}
+#ov{background:var(--r);color:#fff;flex-direction:column;text-align:center}
+.sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 8px;margin-top:-8px}
+.bar{height:8px;background:var(--l);border-radius:9px}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--b),var(--b2));border-radius:9px;transition:width .3s}
+.chk{display:flex;align-items:center;gap:10px;margin:10px 0}
+.chk span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff}
+.chk.y span{background:var(--g)}.chk.n span{background:var(--r)}
+.al{border-left:4px solid var(--r);padding:10px 14px;margin:8px 0;background:var(--bg);border-radius:12px;font-size:14px}
+.note{background:#F59E0B1f;border:1px solid #F59E0B66;border-radius:14px;padding:12px 14px;font-size:14px;margin:12px 0}
+.big{font-size:56px;font-weight:750;text-align:center;letter-spacing:-.03em}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;background:var(--t);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:14px;z-index:20;transition:.25s;max-width:90%;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+</style></head>
+<body><main>
+
+<section id="v-home">
+<div class="hero"><div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><h1>SecureExam</h1><p>Secure exams, teacher tools and study tools in one app.</p></div>
+<div class="note" id="cfg" hidden><b>Setup needed.</b> Add your Supabase URL and anon key near the top of the script in index.html. The Study Hub works without it.</div>
+<div class="card"><label><input type="checkbox" id="agree">I agree to the <a href="#" onclick="doc('t');return false">Terms and Conditions</a> and <a href="#" onclick="doc('p');return false">Privacy Policy</a></label></div>
+<div class="card"><h2>Student</h2>
+<input id="sn" placeholder="Full name" autocomplete="name">
+<input id="sc" placeholder="Exam code" autocapitalize="characters" style="text-transform:uppercase">
+<button class="btn" onclick="enter()">Join Exam</button>
+<button class="btn g" onclick="show('v-study')">Study Hub</button></div>
+<div class="card"><h2>Teacher</h2>
+<input id="te" type="email" placeholder="Email" autocomplete="email">
+<input id="tw" type="password" placeholder="Password (6+ characters)" autocomplete="current-password">
+<button class="btn" onclick="tauth(0)">Sign In</button>
+<button class="btn g" onclick="tauth(1)">Create Account</button></div>
+</section>
+
+<section id="v-pre" class="lock" hidden>
+<h1 id="pt"></h1><div class="card" id="pc"></div>
+<p class="s">Close all floating windows, split screen and other apps. These checks keep running during the exam, and your teacher is alerted if you leave the screen. Keep your phone unmuted.</p>
+<button class="btn" onclick="goFS()">Check my screen</button>
+<button class="btn ok" id="go" disabled onclick="start()">Start Exam</button>
+</section>
+
+<section id="v-ex" class="lock" hidden>
+<div class="sticky"><h2 id="et"></h2><div class="bar"><i id="ep"></i></div></div><div id="eq"></div>
+<button class="btn ok" onclick="submit()">Submit Exam</button>
+</section>
+
+<section id="v-res" hidden><div class="card"><div class="big" id="rs2"></div><p class="s" id="rn" style="text-align:center"></p><button class="btn" onclick="location.reload()">Done</button></div></section>
+
+<section id="v-study" hidden>
+<h1>Study Hub</h1>
+<div class="tabs"><button class="on" onclick="tab(this,'p-f','sp')">Feynman</button><button onclick="tab(this,'p-c','sp');cnt()">Cards</button><button onclick="tab(this,'p-r','sp');cnt()">Recall</button><button onclick="tab(this,'p-p','sp')">Focus</button></div>
+<div class="card sp" id="p-f"><h2>Feynman Technique</h2>
+<p class="s">1. Pick a topic. 2. Explain it to a 10-year-old. 3. Find your gaps. 4. Go back and simplify.</p>
+<input placeholder="Topic"><textarea rows="6" placeholder="Explain it in simple words..."></textarea>
+<label class="ch" style="display:block"><input type="checkbox">I used simple words, no jargon</label>
+<label class="ch" style="display:block"><input type="checkbox">I gave a real example</label>
+<label class="ch" style="display:block"><input type="checkbox">I explained why, not just what</label>
+<textarea rows="3" placeholder="Gaps to review again..."></textarea></div>
+<div class="card sp" id="p-c" hidden><h2>Flashcards</h2>
+<input id="cf" placeholder="Question or term"><input id="cb" placeholder="Answer or definition">
+<button class="btn" onclick="addC()">Add Card</button><p class="s" id="cn"></p>
+<p class="s">Cards return on a spaced schedule: missed cards come back soon, known cards come back later. They are saved only on this device.</p></div>
+<div class="card sp" id="p-r" hidden><h2>Active Recall</h2>
+<select id="rm"><option value="type">Type the answer</option><option value="self">Flip and self-check</option><option value="mc">Multiple choice</option></select>
+<button class="btn" onclick="rec()">Start / Next Card</button><div id="ra"></div></div>
+<div class="card sp" id="p-p" hidden><h2>Focus Timer</h2><div class="big" id="pm">25:00</div>
+<button class="btn" onclick="pomo(25)">Focus 25 min</button><button class="btn g" onclick="pomo(5)">Break 5 min</button></div>
+<button class="btn g" onclick="show('v-home')">Back</button>
+</section>
+
+<section id="v-t" hidden>
+<h1>Teacher</h1>
+<div class="tabs"><button class="on" onclick="tab(this,'q-e','tpn')">Exams</button><button onclick="tab(this,'q-l','tpn')">Live</button><button onclick="tab(this,'q-r','tpn');rep()">Reports</button></div>
+<div class="tpn" id="q-e">
+<div class="card"><h2>AI Exam Maker</h2><p class="s">Paste your lesson content. Copy the prompt into any AI chat (Claude, ChatGPT, Gemini), then paste its answer back to import the questions.</p>
+<textarea id="ai1" rows="6" placeholder="Paste your lesson, notes or topics here..."></textarea>
+<select id="ai2"><option>5</option><option selected>10</option><option>15</option><option>20</option></select>
+<select id="ai4"><option value="a mix: mostly multiple choice, some true/false and short answer">Mixed types</option><option value="multiple choice only">Multiple choice only</option><option value="true/false only">True/False only</option><option value="short answer only">Short answer only</option></select>
+<button class="btn g" onclick="aiP()">1. Copy AI prompt</button>
+<textarea id="ai3" rows="4" placeholder="2. Paste the AI answer here"></textarea>
+<button class="btn" onclick="aiI()">3. Import questions</button></div>
+<div class="card"><h2>Create Exam</h2><input id="mt" placeholder="Exam title"><input id="mp" type="number" value="60" placeholder="Passing %">
+<div id="qb"></div>
+<button class="btn sm g" onclick="addQ('mc')">+ Multiple choice</button><button class="btn sm g" onclick="addQ('tf')">+ True/False</button><button class="btn sm g" onclick="addQ('sa')">+ Short answer</button>
+<button class="btn ok" onclick="pub()">Publish and Get Code</button><div id="mc2"></div></div>
+<div class="card"><h2>My Exams</h2><div id="mx"></div></div></div>
+<div class="tpn" id="q-l" hidden><div class="card"><h2>Live Alerts</h2><p class="s">A student who switches tab or app, exits fullscreen, or opens a floating or split screen appears here instantly.</p><div id="la"></div></div></div>
+<div class="tpn" id="q-r" hidden><div class="card"><h2>Reports</h2><select id="rs" onchange="rep()"></select><p class="s" id="rst"></p>
+<div class="sc"><table id="rt"></table></div><button class="btn g" onclick="csv()">Export CSV</button></div></div>
+<button class="btn g" onclick="out()">Sign Out</button>
+</section>
+</main>
+
+<div class="ov" id="ov" hidden><h1>Exam Locked</h1><p>You left the exam screen. Your teacher has been notified.</p><p>Violations: <b id="vc">0</b></p><button class="btn g" style="max-width:280px" onclick="back()">Return to Exam</button></div>
+<div class="ov" id="tp" hidden><div><div id="tpb"></div><button class="btn" onclick="$('tp').hidden=true">Close</button></div></div>
+<div class="ov" id="rv" hidden><div id="rvb"></div></div>
+<div id="toast"></div>
+
+<script>
+// ===== SETUP: paste your Supabase values (Project Settings > API) =====
+const SUPABASE_URL='https://sgfufyedqfdnttgfpbvj.supabase.co', SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnZnVmeWVkcWZkbnR0Z2ZwYnZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0MjkzNDUsImV4cCI6MjExMTAwNTM0NX0.MoYaGFmuvUpBG5m_u5GjW-gZ2AD0XvJHR41CG88CyEw';
+let sb=null;try{sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let TT;const toast=m=>{const e=$('toast');e.textContent=m;e.classList.add('on');clearTimeout(TT);TT=setTimeout(()=>e.classList.remove('on'),3200)};
+const need=()=>sb||(toast('Setup needed: add your Supabase URL and key in index.html.'),null);
+if(!sb)$('cfg').hidden=false;
+function show(id){document.querySelectorAll('main>section').forEach(e=>e.hidden=e.id!==id);scrollTo(0,0)}
+function tab(b,id,g){b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x==b));document.querySelectorAll('.'+g).forEach(p=>p.hidden=p.id!=id)}
+let AC;function beep(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.frequency.value=880;g.gain.value=.3;o.start();o.stop(AC.currentTime+.4)}catch(e){}}
+
+const DOCS={t:`<h2>Terms and Conditions</h2><p class="s">Template. Have your school or a lawyer review it before real use.</p>
+<p><b>1. Purpose.</b> SecureExam lets teachers give online exams and lets students take them and use study tools.</p>
+<p><b>2. Exam monitoring.</b> During an exam the app detects tab or app switching, loss of focus, fullscreen exit and split or floating screens, then sounds a beep and alerts the teacher. By joining an exam, students agree to this monitoring. Teachers must tell students about it first.</p>
+<p><b>3. Limits.</b> A web page cannot fully control a phone. We do not guarantee that cheating is prevented or that every violation is detected.</p>
+<p><b>4. Academic integrity.</b> Students must answer honestly and without outside help unless the teacher allows it.</p>
+<p><b>5. Teacher accounts.</b> Teachers keep their password secret, are responsible for their exams and student data, and must use results only for education.</p>
+<p><b>6. Acceptable use.</b> No illegal content, attacks on the service, or attempts to read other people's data.</p>
+<p><b>7. Availability.</b> The service is provided as is, with no promise of uninterrupted use. Back up important results with Export CSV.</p>
+<p><b>8. Liability.</b> To the extent allowed by law, the operator is not liable for losses from use of the app, including disputes about exam results.</p>
+<p><b>9. Changes and law.</b> Terms may change. Philippine law applies. Contact: [YOUR EMAIL].</p>`,
+p:`<h2>Privacy Policy</h2><p class="s">Template based on the Philippine Data Privacy Act of 2012 (RA 10173). Have it reviewed before real use.</p>
+<p><b>Data we collect.</b> Students: name, answers, score, and exam violation events with time. Teachers: email, password (stored hashed by Supabase Auth), exams and grading marks. Flashcards stay on your device only.</p>
+<p><b>Why.</b> To run exams, score them, show results to the teacher and detect rule violations. We do not sell data or show ads.</p>
+<p><b>Who sees it.</b> Only the teacher who owns the exam can see its student data. Data is stored with Supabase over encrypted connections, protected by access rules.</p>
+<p><b>Retention.</b> Data is kept until the teacher deletes the exam, which deletes its submissions and alerts. Students can ask their teacher or [YOUR EMAIL] to delete their records.</p>
+<p><b>Your rights.</b> You may ask to access, correct or delete your data and may object to its processing, as provided by law.</p>
+<p><b>Minors.</b> Students under 18 should use the app only through their school, with the required parent or school consent.</p>
+<p><b>Contact.</b> [YOUR NAME], [YOUR EMAIL].</p>`};
+function doc(k){$('tpb').innerHTML=DOCS[k];$('tp').hidden=false}
+
+// ===== STUDENT =====
+let EX,SUB,ANS={},VIO=0,LIVE=false,LAST=0,T;
+const CAN=!!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen);
+async function enter(){
+ if(!need())return;
+ if(!$('agree').checked)return toast('Please accept the Terms and Privacy Policy first.');
+ const n=$('sn').value.trim(),c=$('sc').value.trim().toUpperCase();
+ if(!n||!c)return toast('Enter your name and the exam code.');
+ const{data,error}=await sb.rpc('get_exam',{c});
+ if(error||!data)return toast('Exam code not found.');
+ EX=data;$('pt').textContent=EX.title;show('v-pre');check()}
+function ok(){const f=document.fullscreenElement||document.webkitFullscreenElement;
+ return{fs:!CAN||!!f,sz:innerWidth>=screen.width*.9&&(!CAN||innerHeight>=screen.height*.8),fo:!document.hidden&&document.hasFocus(),pip:!document.pictureInPictureElement}}
+function check(){const o=ok(),L={fs:'Fullscreen',sz:'Full window (no split or floating screen)',fo:'Exam screen in focus',pip:'No picture-in-picture'};
+ $('pc').innerHTML=Object.keys(L).map(k=>`<p class="chk ${o[k]?'y':'n'}"><span>${o[k]?'✓':'✕'}</span>${L[k]}</p>`).join('');
+ $('go').disabled=!Object.values(o).every(Boolean);return o}
+async function goFS(){beep();const e=document.documentElement;try{await(e.requestFullscreen||e.webkitRequestFullscreen).call(e)}catch(x){}setTimeout(check,500)}
+setInterval(()=>{if(!$('v-pre').hidden)check()},1000);
+async function start(){
+ if(!Object.values(ok()).every(Boolean))return check();
+ const{data,error}=await sb.rpc('start_sub',{c:EX.code,n:$('sn').value.trim()});
+ if(error)return toast(error.message);
+ SUB=data;ANS={};$('et').textContent=EX.title;
+ $('eq').innerHTML=EX.questions.map((q,i)=>`<div class="card q"><b>${i+1}. ${esc(q.q)}</b>`+(q.t=='sa'?`<textarea rows="3" placeholder="Your answer" oninput="ans(${i},this.value)"></textarea>`:(q.t=='tf'?['True','False']:q.o).map(o=>`<div class="ch" data-i="${i}" data-v="${esc(o)}" onclick="pick(this)">${esc(o)}</div>`).join(''))+'</div>').join('');
+ show('v-ex');LIVE=true;LAST=Date.now()}
+function pick(el){el.parentNode.querySelectorAll('.ch').forEach(c=>c.classList.toggle('on',c==el));ans(el.dataset.i,el.dataset.v)}
+const sv=()=>sb.rpc('save_ans',{s:SUB,a:ANS});
+function ans(i,v){ANS[i]=v;$('ep').style.width=Object.values(ANS).filter(x=>x.trim()).length/EX.questions.length*100+'%';clearTimeout(T);T=setTimeout(sv,500)}
+function vio(k){if(!LIVE||Date.now()-LAST<1500)return;LAST=Date.now();VIO++;beep();navigator.vibrate&&navigator.vibrate([300,100,300]);$('vc').textContent=VIO;$('ov').hidden=false;sb.rpc('log_alert',{s:SUB,k})}
+async function back(){await goFS();setTimeout(()=>{const o=ok();if(o.fs&&o.sz&&o.fo)$('ov').hidden=true},700)}
+document.addEventListener('visibilitychange',()=>document.hidden&&vio('Switched tab or app'));
+addEventListener('blur',()=>setTimeout(()=>!document.hasFocus()&&vio('Lost focus (floating window or other app)'),300));
+document.addEventListener('fullscreenchange',()=>{if(CAN&&!document.fullscreenElement)vio('Exited fullscreen')});
+addEventListener('resize',()=>{const a=document.activeElement;if(a&&/INPUT|TEXTAREA/.test(a.tagName))return;if(!ok().sz)vio('Split or floating screen detected')});
+['copy','cut','paste'].forEach(e=>document.addEventListener(e,ev=>LIVE&&ev.preventDefault()));
+['contextmenu','selectstart'].forEach(e=>document.addEventListener(e,ev=>{if(LIVE&&!/INPUT|TEXTAREA/.test(ev.target.tagName))ev.preventDefault()}));
+addEventListener('beforeunload',e=>{if(LIVE){e.preventDefault();e.returnValue=''}});
+async function submit(){
+ if(!confirm('Submit your exam? You cannot change answers after this.'))return;
+ await sv();const{data,error}=await sb.rpc('finish',{s:SUB});
+ if(error)return toast(error.message);
+ LIVE=false;try{document.exitFullscreen&&document.exitFullscreen()}catch(e){}
+ const sa=EX.questions.filter(q=>q.t=='sa').length;
+ $('rs2').textContent=data.score+' / '+data.total;
+ $('rn').textContent=sa?`This is the auto-graded part. ${sa} short answer question(s) will be checked by your teacher.`:'Your answers were saved.';
+ show('v-res')}
+
+// ===== TEACHER =====
+let QB=[],EXS=[],SUBS=[],RI,liveOn=false;
+async function tauth(up){
+ if(!need())return;
+ if(!$('agree').checked)return toast('Please accept the Terms and Privacy Policy first.');
+ const cr={email:$('te').value.trim(),password:$('tw').value};
+ if(!cr.email.includes('@')||cr.password.length<6)return toast('Enter a valid email and a password of 6+ characters.');
+ const r=up?await sb.auth.signUp(cr):await sb.auth.signInWithPassword(cr);
+ if(r.error)return toast(r.error.message);
+ if(!r.data.session)return toast('Check your email to confirm your account, then sign in.');
+ tdash()}
+async function tdash(){show('v-t');await loadX();live()}
+async function out(){await sb.auth.signOut();location.reload()}
+function aiP(){const c=$('ai1').value.trim();if(!c)return toast('Paste your content first.');
+ const p=`You are an exam writer. Using ONLY the content below, write ${$('ai2').value} exam questions. Question types: ${$('ai4').value}. Reply with ONLY a JSON array, no other text. Each item looks like {"t":"mc" or "tf" or "sa","q":"question","o":["A","B","C","D"],"a":"answer"}. Rules: mc has exactly 4 options in "o", and "a" is the exact text of the correct option. tf has no "o", and "a" is "True" or "False". sa has no "o", and "a" is a short model answer. Do not add facts that are not in the content.\n\nCONTENT:\n${c}`;
+ navigator.clipboard.writeText(p).then(()=>toast('Prompt copied. Paste it into an AI chat.'),()=>toast('Could not copy. Allow clipboard access.'))}
+function aiI(){const s=$('ai3').value,i=s.indexOf('['),j=s.lastIndexOf(']');
+ if(i<0||j<i)return toast('No question list found. Paste the full AI answer.');
+ let a;try{a=JSON.parse(s.slice(i,j+1))}catch(e){return toast('That is not valid JSON. Ask the AI to fix it.')}
+ let n=0;a.forEach(x=>{if(!x||!x.q)return;const ty=['mc','tf','sa'].includes(x.t)?x.t:'sa',q=String(x.q);
+  if(ty=='mc'){const o=(x.o||[]).slice(0,4).map(String);while(o.length<4)o.push('');const k=o.findIndex(v=>v.trim().toLowerCase()==String(x.a).trim().toLowerCase());QB.push({t:ty,q,o,a:String(k<0?0:k)})}
+  else if(ty=='tf')QB.push({t:ty,q,o:['','','',''],a:/^t/i.test(String(x.a))?'True':'False'});
+  else QB.push({t:ty,q,o:['','','',''],a:'0',k:String(x.a||'')});n++});
+ rb();$('ai3').value='';toast(n+' questions imported. Review them, then publish.');$('qb').scrollIntoView({behavior:'smooth'})}
+function addQ(t){QB.push({t,q:'',o:['','','',''],a:t=='tf'?'True':'0'});rb()}
+function rb(){$('qb').innerHTML=QB.map((x,i)=>`<div class="card"><b>Q${i+1} · ${{mc:'Multiple choice',tf:'True/False',sa:'Short answer'}[x.t]}</b> <a href="#" onclick="QB.splice(${i},1);rb();return false">remove</a>
+<textarea oninput="QB[${i}].q=this.value" placeholder="Question">${esc(x.q)}</textarea>`+
+(x.t=='mc'?x.o.map((o,j)=>`<input oninput="QB[${i}].o[${j}]=this.value" placeholder="Option ${j+1}" value="${esc(o)}">`).join('')+`<select onchange="QB[${i}].a=this.value">${x.o.map((_,j)=>`<option value="${j}"${x.a==j?' selected':''}>Correct: option ${j+1}</option>`).join('')}</select>`
+:x.t=='tf'?`<select onchange="QB[${i}].a=this.value"><option${x.a=='True'?' selected':''}>True</option><option${x.a=='False'?' selected':''}>False</option></select>`
+:'<input oninput="QB[${i}].k=this.value" placeholder="Model answer (only you see it)" value="${esc(x.k||'')}">')+'</div>').join('')}
+async function pub(){
+ const ti=$('mt').value.trim();if(!ti||!QB.length)return toast('Add a title and at least one question.');
+ const qs=[];for(const x of QB){if(!x.q.trim())return toast('Fill in every question.');
+  if(x.t=='mc'){if(x.o.some(o=>!o.trim()))return toast('Fill in all options.');qs.push({t:'mc',q:x.q,o:x.o,a:x.o[+x.a]})}
+  else qs.push({t:x.t,q:x.q,a:x.t=='tf'?x.a:(x.k||'')})}
+ const code=Math.random().toString(36).slice(2,8).toUpperCase();
+ const{error}=await sb.from('exams').insert({code,title:ti,pass:+$('mp').value||60,questions:qs});
+ if(error)return toast(error.message);
+ const link=location.origin+location.pathname+'?code='+code;
+ QB=[];rb();$('mt').value='';
+ $('mc2').innerHTML=`<p>Exam code: <b style="font-size:24px;letter-spacing:3px">${code}</b></p><button class="btn sm" onclick="navigator.clipboard.writeText('${link}');toast('Link copied')">Copy student link</button>`;
+ loadX()}
+async function loadX(){
+ const{data}=await sb.from('exams').select('id,code,title,pass,questions').order('created_at',{ascending:false});EXS=data||[];
+ $('mx').innerHTML=EXS.map(e=>`<p><b>${esc(e.title)}</b> · ${e.code} <a href="#" onclick="del('${e.id}');return false">delete</a></p>`).join('')||'<p class="s">No exams yet.</p>';
+ $('rs').innerHTML=EXS.map(e=>`<option value="${e.id}">${esc(e.title)} (${e.code})</option>`).join('')}
+async function del(id){if(confirm('Delete this exam and all its student data?')){await sb.from('exams').delete().eq('id',id);loadX()}}
+function addA(a){const e=EXS.find(x=>x.id==a.exam_id);$('la').insertAdjacentHTML('afterbegin',`<div class="al"><b>${esc(a.student)}</b>: ${esc(a.kind)}<br><span class="s">${esc(e?e.title:'')} · ${new Date(a.created_at).toLocaleTimeString()}</span></div>`)}
+async function live(){
+ const{data}=await sb.from('alerts').select('*').order('created_at').limit(50);$('la').innerHTML='';(data||[]).forEach(addA);
+ if(liveOn)return;liveOn=true;
+ sb.channel('al').on('postgres_changes',{event:'INSERT',schema:'public',table:'alerts'},p=>{addA(p.new);beep()}).subscribe()}
+function calc(s,x){const sa=x.questions.filter(q=>q.t=='sa').length,m=Object.values(s.manual||{}).filter(v=>v===true).length,tot=(s.total||0)+sa,sc=(s.score||0)+m;
+ return{sc,tot,p:tot?Math.round(sc/tot*100):0,pend:sa-Object.keys(s.manual||{}).length}}
+async function rep(){
+ const x=EXS.find(e=>e.id==$('rs').value);if(!x){$('rt').innerHTML='';return}
+ const{data}=await sb.from('submissions').select('*').eq('exam_id',x.id).order('created_at');SUBS=data||[];
+ const R=SUBS.map(s=>calc(s,x)),ps=SUBS.map((s,i)=>s.done?R[i].p:null).filter(v=>v!==null);
+ $('rst').innerHTML=ps.length?`Submitted ${ps.length}/${SUBS.length} · Average ${Math.round(ps.reduce((a,b)=>a+b,0)/ps.length)}% · High ${Math.max(...ps)}% · Low ${Math.min(...ps)}% · Passed ${ps.filter(p=>p>=x.pass).length}`:'No submissions yet.';
+ $('rt').innerHTML='<tr><th>#</th><th>Student</th><th>Score</th><th>%</th><th>Result</th><th>Flags</th><th>To check</th><th></th></tr>'+
+ SUBS.map((s,i)=>{const r=R[i];return`<tr><td>${i+1}</td><td>${esc(s.student)}</td><td>${s.done?r.sc+'/'+r.tot:'-'}</td><td>${s.done?r.p+'%':'In progress'}</td><td>${s.done?(r.p>=x.pass?'<span class="pill ok">Pass</span>':'<span class="pill no">Fail</span>'):'-'}</td><td>${s.violations}</td><td>${s.done?r.pend:'-'}</td><td><a href="#" onclick="rvw(${i});return false">View</a></td></tr>`}).join('')}
+function rvw(i){const s=SUBS[i],x=EXS.find(e=>e.id==s.exam_id);RI=i;
+ $('rvb').innerHTML=`<h2>${esc(s.student)}</h2>`+x.questions.map((q,j)=>{const a=String((s.answers||{})[j]??'');let tag;
+  if(q.t=='sa'){const m=(s.manual||{})[j];tag=`<button class="btn sm ok" onclick="mk(${j},true)">Correct</button><button class="btn sm no" onclick="mk(${j},false)">Wrong</button> <b>${m===true?'✓ marked correct':m===false?'✗ marked wrong':'unchecked'}</b>${q.a?`<p class="s">Model answer: ${esc(q.a)}</p>`:''}`}
+  else tag=a.trim().toLowerCase()==q.a.trim().toLowerCase()?'✓ correct':'✗ key: '+esc(q.a);
+  return`<div class="card"><b>${j+1}. ${esc(q.q)}</b><p>${a?esc(a):'<i>no answer</i>'}</p>${tag}</div>`}).join('')+'<button class="btn g" onclick="$(\'rv\').hidden=true;rep()">Close</button>';
+ $('rv').hidden=false}
+async function mk(j,v){const s=SUBS[RI];s.manual={...(s.manual||{}),[j]:v};await sb.from('submissions').update({manual:s.manual}).eq('id',s.id);rvw(RI)}
+function csv(){const x=EXS.find(e=>e.id==$('rs').value);if(!x)return;
+ const rows=[['Student','Score','Total','Percent','Violations']].concat(SUBS.filter(s=>s.done).map(s=>{const r=calc(s,x);return[s.student,r.sc,r.tot,r.p,s.violations]}));
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n')],{type:'text/csv'}));a.download=x.code+'-report.csv';a.click()}
+
+// ===== STUDY =====
+let CARDS=[],CUR,OPT,PT,PS=0;
+try{CARDS=JSON.parse(localStorage.getItem('cards')||'[]')}catch(e){}
+const svC=()=>{try{localStorage.setItem('cards',JSON.stringify(CARDS))}catch(e){}};
+const cnt=()=>$('cn').textContent=CARDS.length+' cards · '+CARDS.filter(c=>c.d<=Date.now()).length+' due';
+const nz=s=>s.trim().toLowerCase();
+function addC(){const f=$('cf').value.trim(),b=$('cb').value.trim();if(!f||!b)return;CARDS.push({f,b,k:0,d:0});svC();$('cf').value=$('cb').value='';cnt()}
+function rec(){const m=$('rm').value,due=CARDS.filter(c=>c.d<=Date.now());
+ if(!due.length){$('ra').innerHTML='<p class="s">No cards due. Add cards or check back later.</p>';return}
+ if(m=='mc'&&CARDS.length<2){$('ra').innerHTML='<p class="s">Add at least 2 cards for multiple choice.</p>';return}
+ CUR=due[Math.floor(Math.random()*due.length)];let h=`<h3>${esc(CUR.f)}</h3>`;
+ if(m=='type')h+=`<input id="ri" placeholder="Type your answer"><button class="btn" onclick="gr(nz($('ri').value)==nz(CUR.b))">Check</button>`;
+ else if(m=='self')h+=`<button class="btn g" onclick="rv2()">Reveal answer</button>`;
+ else{OPT=[CUR.b,...CARDS.filter(c=>c!==CUR).map(c=>c.b).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);h+=OPT.map((o,i)=>`<div class="ch" onclick="gr(OPT[${i}]==CUR.b)">${esc(o)}</div>`).join('')}
+ $('ra').innerHTML=h}
+function rv2(){$('ra').innerHTML=`<h3>${esc(CUR.f)}</h3><p><b>${esc(CUR.b)}</b></p><button class="btn sm ok" onclick="gr(true)">I knew it</button><button class="btn sm no" onclick="gr(false)">Missed it</button>`}
+function gr(ok){CUR.k=ok?Math.min(CUR.k+1,4):0;CUR.d=Date.now()+[6e4,6e5,864e5,2592e5,6048e5][CUR.k];svC();cnt();
+ $('ra').innerHTML=`<p>${ok?'✅ Correct':'❌ Answer: '+esc(CUR.b)}</p><button class="btn" onclick="rec()">Next card</button>`}
+const pd=()=>$('pm').textContent=String(Math.floor(PS/60)).padStart(2,'0')+':'+String(PS%60).padStart(2,'0');
+function pomo(m){clearInterval(PT);PS=m*60;pd();PT=setInterval(()=>{PS--;pd();if(PS<=0){clearInterval(PT);beep();toast('Time is up!')}},1000)}
+
+// ===== START =====
+const qc=new URLSearchParams(location.search).get('code');if(qc)$('sc').value=qc.toUpperCase();
+sb&&sb.auth.getSession().then(({data})=>{if(data.session&&!qc)tdash()});
+</script></body></html>
